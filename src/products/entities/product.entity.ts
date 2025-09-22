@@ -4,7 +4,7 @@ import { Provider } from "../../providers/entities/provider.entity";
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn("uuid")
-  productId: string; 
+  productId: string; // ← Cambiado de "id" a "productId"
 
   @Column({ type: "text" })
   productName: string;
@@ -16,7 +16,7 @@ export class Product {
   countSeal: number;
 
   @ManyToOne(() => Provider, (provider) => provider.products, {
-    eager: true,
+  eager: true
   })
   provider: Provider;
 }
