@@ -17,13 +17,14 @@ export class EmployeesService {
     return employee;
   }
 
-  async findAll() { // <-- También agregué async aquí que te faltaba
+  async findAll() {
     return this.employeeRepository.find();
   }
 
-  async findOne(id: string) { // <-- Y aquí, es crucial para que funcione remove
+  async findOne(id: string) {
+    // USA employeeId (no id)
     const employee = await this.employeeRepository.findOneBy({
-      employeeId: id
+      employeeId: id  // <-- Cambiado a employeeId
     });
     
     if (!employee) {
@@ -34,8 +35,9 @@ export class EmployeesService {
   }
 
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
+    // USA employeeId (no id)
     const employeeToUpdate = await this.employeeRepository.preload({
-      employeeId: id,
+      employeeId: id,  // <-- Cambiado a employeeId
       ...updateEmployeeDto
     });
     
@@ -44,19 +46,19 @@ export class EmployeesService {
     }
     
     return await this.employeeRepository.save(employeeToUpdate);
-  } // <-- ¡ESTA LLAVE CIERRA EL MÉTODO UPDATE! Era la que te faltaba.
+  }
 
   async remove(id: string) {
-    // Verificamos que el empleado existe (findOne lanza excepción si no)
+    // Verificamos que el empleado existe
     await this.findOne(id);
 
-    // Si existe, lo eliminamos
+    // USA employeeId (no id)
     await this.employeeRepository.delete({
-      employeeId: id
+      employeeId: id  // <-- Cambiado a employeeId
     });
     
     return {
       message: "Employee has been DELETED"
     };
   }
-} // <-- Esta llave cierra la clase EmployeesService
+}
