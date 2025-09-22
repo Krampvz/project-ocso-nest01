@@ -8,7 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ProvidersModule } from './providers/providers.module';
 import { ManagersModule } from './managers/managers.module';
 import { LocationsModule } from './locations/locations.module';
-import { RegionsModule } from './regions/regions.module';
+// import { RegionsModule } from './regions/regions.module'; ← COMENTA ESTA LÍNEA
 
 @Module({
   imports: [
@@ -25,9 +25,12 @@ import { RegionsModule } from './regions/regions.module';
     }),
     EmployeesModule, 
     ProductsModule, 
-    ProvidersModule, ManagersModule, LocationsModule, RegionsModule,
+    ProvidersModule, 
+    ManagersModule, 
+    LocationsModule, 
+    // RegionsModule, ← COMENTA ESTA LÍNEA
   ],
   controllers: [AppController],
-  providers: [AppService], // ← ¡ESTA LÍNEA FALTABA!
+  providers: [AppService],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { RegionsService } from './regions.service';
 import { CreateRegionDto } from './dto/create-region.dto';
 import { UpdateRegionDto } from './dto/update-region.dto';
@@ -18,17 +18,17 @@ export class RegionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.regionsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) { // ← ParseIntPipe + number
+    return this.regionsService.findOne(id); // ← Sin +
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRegionDto: UpdateRegionDto) {
-    return this.regionsService.update(+id, updateRegionDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateRegionDto: UpdateRegionDto) {
+    return this.regionsService.update(id, updateRegionDto); // ← Sin +
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.regionsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.regionsService.remove(id); // ← Sin +
   }
 }
