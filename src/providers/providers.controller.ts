@@ -17,6 +17,10 @@ import { User } from '../auth/entities/user.entity';
 import { AuthGuard } from '../auth/guards/auth-guard';
 import { UserData } from '../auth/decorators/user.decorator';
 
+// COMENTA TEMPORALMENTE ESTAS IMPORTACIONES PROBLEMÁTICAS
+// import { Roles } from 'src/auth/decorators/roles.decorator';
+// import { RolesGuard } from 'src/auth/guards/roles.guards';
+
 @UseGuards(AuthGuard)
 @Controller('providers')
 export class ProvidersController {
@@ -28,10 +32,12 @@ export class ProvidersController {
   }
 
   @Get()
-findAll(@UserData() user: User) {
-    if (user.userRoles.includes("Employee")) throw new UnauthorizedException("No estas autorizado, solo admins y managers");
+  findAll(@UserData() user: User) {
+    if (!user.userRoles.includes("Admin") && !user.userRoles.includes("Manager")) {
+      throw new UnauthorizedException("No estas autorizado, solo admins y managers");
+    }
     return this.providersService.findAll();
-}
+  }
 
   @Get('/name/:name')
   async findByName(@Param('name') name: string) {
