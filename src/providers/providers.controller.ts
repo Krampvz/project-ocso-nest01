@@ -14,14 +14,10 @@ import { ProvidersService } from './providers.service';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { User } from '../auth/entities/user.entity';
-import { AuthGuard } from '../auth/guards/auth-guard';
 import { UserData } from '../auth/decorators/user.decorator';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
-// COMENTA TEMPORALMENTE ESTAS IMPORTACIONES PROBLEMÁTICAS
-// import { Roles } from 'src/auth/decorators/roles.decorator';
-// import { RolesGuard } from 'src/auth/guards/roles.guards';
 
-@UseGuards(AuthGuard)
 @Controller('providers')
 export class ProvidersController {
   constructor(private readonly providersService: ProvidersService) {}
@@ -31,6 +27,7 @@ export class ProvidersController {
     return this.providersService.create(createProviderDto);
   }
 
+  @Auth("Employee")
   @Get()
   findAll(@UserData() user: User) {
     if (!user.userRoles.includes("Admin") && !user.userRoles.includes("Manager")) {
