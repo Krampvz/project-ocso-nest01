@@ -37,8 +37,9 @@ export class AuthService {
         if (!match) throw new UnauthorizedException("No estás autorizado");
 
         const payload = {
-            user: user.userEmail,
-            password: user.userPassword,
+            userEmail: user.userEmail,
+            userPassword: user.userPassword,
+            userRoles: user.userRoles
         };
 
         const token = this.jwtService.sign(payload);
