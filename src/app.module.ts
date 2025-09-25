@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmployeesModule } from './employees/employees.module';
 import { ProductsModule } from './products/products.module';
@@ -41,7 +39,7 @@ import { EXPIRES_IN, JWT_KEY } from './auth/constants/jwt.constants';
     RegionsModule, 
     AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
