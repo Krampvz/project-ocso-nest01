@@ -16,18 +16,19 @@ import { UpdateProviderDto } from './dto/update-provider.dto';
 import { User } from '../auth/entities/user.entity';
 import { UserData } from '../auth/decorators/user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-
+import { ROLES } from 'src/auth/constants/roles.constants';
 
 @Controller('providers')
 export class ProvidersController {
   constructor(private readonly providersService: ProvidersService) {}
-
+  
+  @Auth(ROLES.MANAGER)
   @Post()
   create(@Body() createProviderDto: CreateProviderDto) {
     return this.providersService.create(createProviderDto);
   }
 
-  @Auth("Employee")
+  @Auth(ROLES.EMPLOYEE, ROLES.MANAGER)
   @Get()
   findAll(@UserData() user: User) {
     if (!user.userRoles.includes("Admin") && !user.userRoles.includes("Manager")) {
@@ -36,6 +37,7 @@ export class ProvidersController {
     return this.providersService.findAll();
   }
 
+  @Auth(ROLES.EMPLOYEE, ROLES.MANAGER)
   @Get('/name/:name')
   async findByName(@Param('name') name: string) {
     const provider = await this.providersService.findOneByName(name);
@@ -43,6 +45,7 @@ export class ProvidersController {
     return provider;
   }
 
+  @Auth(ROLES.EMPLOYEE, ROLES.MANAGER)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const provider = await this.providersService.findOne(id);
@@ -50,11 +53,13 @@ export class ProvidersController {
     return provider;
   }
 
+  @Auth(ROLES.MANAGER)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProviderDto: UpdateProviderDto) {
     return this.providersService.update(id, updateProviderDto);
   }
 
+  @Auth(ROLES.MANAGER)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.providersService.remove(id);
