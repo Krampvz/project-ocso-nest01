@@ -8,7 +8,10 @@ import { ROLES } from 'src/auth/constants/roles.constants';
 import { ApiAuth } from "src/auth/decorators/api.decorator";
 import { ApiResponse } from "@nestjs/swagger";
 import { Employee } from "./entities/employee.entity";
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiAuth()
+@ApiTags("Employees")
 @Controller('employees')
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}

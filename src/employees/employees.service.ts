@@ -13,7 +13,6 @@ export class EmployeesService {
   ){}
 
   async create(createEmployeeDto: CreateEmployeeDto) {
-    // ✅ CORREGIDO: crear primero, luego guardar
     const employee = this.employeeRepository.create(createEmployeeDto);
     return await this.employeeRepository.save(employee);
   }
@@ -23,8 +22,9 @@ export class EmployeesService {
   }
 
   async findOne(id: string) {
-    const employee = await this.employeeRepository.findOneBy({
-      employeeId: id
+    const employee = await this.employeeRepository.findOne({
+      where: { employeeId: id },
+      relations: ['location'] // ✅ Para incluir la relación
     });
     
     if (!employee) {
