@@ -9,12 +9,11 @@ export class Provider {
   @Column('text')
   providerName: string;
 
-  @Column('text')
-  providerEmail: string;
-
-  @Column({ type: "text", nullable: true })
+@Column('text', {unique: true,})
+  
+@Column({ type: "text", nullable: true })
   providerPhoneNumber: string;
 
-  @OneToMany(() => Product, (product) => product.provider) // ← Corregido
+  @OneToMany(() => Product, (product) => product.provider) 
   products: Product[];
 }

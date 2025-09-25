@@ -1,11 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from "bcrypt";
-
+import * as bcrypt from 'bcrypt';
+import { LoginUserDto } from './dto/login-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto'; 
 @Injectable()
 export class AuthService {
     constructor(
@@ -14,35 +15,23 @@ export class AuthService {
     ) {}
 
     async registerUser(createUserDto: CreateUserDto) {
-        createUserDto.userPassword = await bcrypt.hash(createUserDto.userPassword, 5);
-        return this.userRepository.save(createUserDto);
     }
 
-    async loginUser(loginUserDto: CreateUserDto) {
-        const user = await this.userRepository.findOne({
-            where: {
-                userEmail: loginUserDto.userEmail,
-            },
+    async loginUser(loginUserDto: LoginUserDto) {
+    }
+
+    async updateUser(userEmail: string, updateUserDto: UpdateUserDto) { 
+     
+        const newUserData = await this.userRepository.preload({ 
+            userEmail: userEmail, 
+            ...updateUserDto
         });
-
-        if (!user) {
-            throw new UnauthorizedException("No estás autorizado");
+        
+        if (!newUserData) {
+            throw new UnauthorizedException('Usuario no encontrado');
         }
-
-        const match = await bcrypt.compare(
-            loginUserDto.userPassword,
-            user.userPassword,
-        );
-
-        if (!match) throw new UnauthorizedException("No estás autorizado");
-
-        const payload = {
-            userEmail: user.userEmail,
-            userPassword: user.userPassword,
-            userRoles: user.userRoles
-        };
-
-        const token = this.jwtService.sign(payload);
-        return token;
+        
+        await this.userRepository.save(newUserData);
+        return newUserData;
     }
 }

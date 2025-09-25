@@ -11,7 +11,7 @@ import { LocationsModule } from './locations/locations.module';
 import { RegionsModule } from './regions/regions.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-import { EXPIRES_IN, JWT_KEY} from './auth/constants/jwt.constants';
+import { EXPIRES_IN, JWT_KEY } from './auth/constants/jwt.constants';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import { EXPIRES_IN, JWT_KEY} from './auth/constants/jwt.constants';
       signOptions: {
         expiresIn: EXPIRES_IN,
       },
+      global: true, // ← Agregado para que sea global
     }),
     TypeOrmModule.forRoot({
       type: "postgres",
@@ -30,7 +31,7 @@ import { EXPIRES_IN, JWT_KEY} from './auth/constants/jwt.constants';
       password: process.env.DB_PASSWORD || 'password123',
       database: process.env.DB_NAME || 'ocso_db',
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false, // ← CAMBIADO A false PARA SOLUCIONAR EL ERROR
     }),
     EmployeesModule, 
     ProductsModule, 

@@ -13,8 +13,9 @@ export class EmployeesService {
   ){}
 
   async create(createEmployeeDto: CreateEmployeeDto) {
-    const employee = await this.employeeRepository.save(createEmployeeDto);
-    return employee;
+    // ✅ CORREGIDO: crear primero, luego guardar
+    const employee = this.employeeRepository.create(createEmployeeDto);
+    return await this.employeeRepository.save(employee);
   }
 
   async findAll() {
@@ -22,9 +23,8 @@ export class EmployeesService {
   }
 
   async findOne(id: string) {
-    // USA employeeId (no id)
     const employee = await this.employeeRepository.findOneBy({
-      employeeId: id  // <-- Cambiado a employeeId
+      employeeId: id
     });
     
     if (!employee) {
@@ -35,9 +35,8 @@ export class EmployeesService {
   }
 
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
-    // USA employeeId (no id)
     const employeeToUpdate = await this.employeeRepository.preload({
-      employeeId: id,  // <-- Cambiado a employeeId
+      employeeId: id,
       ...updateEmployeeDto
     });
     
@@ -49,12 +48,9 @@ export class EmployeesService {
   }
 
   async remove(id: string) {
-    // Verificamos que el empleado existe
     await this.findOne(id);
-
-    // USA employeeId (no id)
     await this.employeeRepository.delete({
-      employeeId: id  // <-- Cambiado a employeeId
+      employeeId: id
     });
     
     return {

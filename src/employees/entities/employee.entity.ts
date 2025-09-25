@@ -1,5 +1,5 @@
-import { Location } from "../../locations/entities/location.entity";
-import { User } from "src/auth/entities/user.entity"; // ← Sube un nivel más
+import { User } from "src/auth/entities/user.entity";
+import { Location } from "src/locations/entities/location.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm"; // ← Agregar OneToOne
 
 @Entity()
@@ -8,22 +8,23 @@ export class Employee {
     employeeId: string;
 
     @Column('text')
-    name: string;
+    employeeName: string;
 
     @Column('text')
-    lastName: string;
+    employeeLastName: string;
 
     @Column('text')
-    phoneNumber: string;
+    employeePhoneNumber: string;
 
-    @Column('text')
-    email: string;
+    @Column('text', {
+        unique: true})
+    employeeEmail: string;
 
     @Column({
         type: 'text',
         nullable: true
     })
-    photolr1: string;
+    employeePhoto: string;
 
     @ManyToOne(() => Location, (location) => location.employees)
     @JoinColumn({
