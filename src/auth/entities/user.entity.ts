@@ -7,11 +7,13 @@ export class User {
     @PrimaryGeneratedColumn('uuid')
     userId: string;
 
- @Column('text', {
+    @Column('text', {
         unique: true,
     })
+    userEmail: string;  // ← ESTA FALTABA
+
     @Column('text')
-    userPassword: string;
+    userPassword: string;  // ← SOLO UN @Column
 
     @Column('simple-array', {
         default: "Employee"

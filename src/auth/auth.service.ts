@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto'; 
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -15,13 +16,36 @@ export class AuthService {
     ) {}
 
     async registerUser(createUserDto: CreateUserDto) {
+        createUserDto.userPassword = bcrypt.hashSync(createUserDto.userPassword, 5);
+        return this.userRepository.save(createUserDto);
     }
 
     async loginUser(loginUserDto: LoginUserDto) {
+        const user = await this.userRepository.findOne({ 
+            where: { 
+                userEmail: loginUserDto.userEmail,
+            },
+        });
+
+        if (!user) throw new UnauthorizedException("No estas autorizado");
+
+        const match = await bcrypt.compare(
+            loginUserDto.userPassword,
+            user.userPassword,
+        );
+
+        if (!match) throw new UnauthorizedException("No estas autorizado");
+
+        const payload = {
+            userEmail: user.userEmail,
+            userPassword: user.userPassword,
+            userRoles: user.userRoles};
+
+        
+        return user;
     }
 
     async updateUser(userEmail: string, updateUserDto: UpdateUserDto) { 
-     
         const newUserData = await this.userRepository.preload({ 
             userEmail: userEmail, 
             ...updateUserDto
