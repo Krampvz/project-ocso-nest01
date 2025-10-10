@@ -21,6 +21,9 @@ export class Manager {
     
 
     @OneToOne(() => Location)
+    @JoinColumn({
+        name: "locationId"
+    })
     location: Location;
 
     @OneToOne(() => User)
