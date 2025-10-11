@@ -1,6 +1,8 @@
-import { IsEmail, IsNumber, IsString, MaxLength } from "class-validator";
+import { IsEmail, IsNumber, IsOptional, IsString, MaxLength } from "class-validator";
+import { Manager } from "../entities/manager.entity";
+import { Location } from "src/locations/entities/location.entity";
 
-export class CreateManagerDto {
+export class CreateManagerDto extends Manager {
   @IsString()
   @MaxLength(80)
   managerFullName: string;
@@ -10,9 +12,13 @@ export class CreateManagerDto {
   managerEmail: string;
 
   @IsNumber()
-  managerSalary: number; // ← Añadí el tipo
+  managerSalary: number;
 
   @IsString()
   @MaxLength(16)
   managerPhoneNumber: string;
+
+  @IsNumber()
+  @IsOptional()
+  location: Location;
 }

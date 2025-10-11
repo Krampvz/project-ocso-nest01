@@ -17,18 +17,25 @@ export class ManagersService {
   }
 
   findAll() {
-    return this.managerRepository.find();
+    return this.managerRepository.find({
+      relations: {
+        location: true,
+      }
+    });
   }
 
-  async findOne(id: string) { // ← Cambia number por string
-    const manager = await this.managerRepository.findOne({
-      where: { managerId: id }
+  findOne(id: string) {
+    const manager = this.managerRepository.findOne({
+      where: { managerId: id },
+      relations: {
+        location: true,
+      }
     });
     if (!manager) throw new NotFoundException("No manager found");
     return manager;
   }
 
-  async update(id: string, updateManagerDto: UpdateManagerDto) { // ← string
+  async update(id: string, updateManagerDto: UpdateManagerDto) {
     const managerToUpdate = await this.managerRepository.preload({
       managerId: id,
       ...updateManagerDto
@@ -37,7 +44,7 @@ export class ManagersService {
     return await this.managerRepository.save(managerToUpdate);
   }
 
-  async remove(id: string) { // ← string
+  async remove(id: string) {
     const manager = await this.findOne(id);
     await this.managerRepository.delete({
       managerId: id

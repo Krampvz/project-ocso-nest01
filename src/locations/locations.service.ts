@@ -4,12 +4,15 @@ import { UpdateLocationDto } from './dto/update-location.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Location } from './entities/location.entity';
 import { Repository } from 'typeorm';
+import { Manager } from 'src/managers/entities/manager.entity';
 
 @Injectable()
 export class LocationsService {
   constructor(
     @InjectRepository(Location)
-    private locationRepository: Repository<Location>
+    private locationRepository: Repository<Location>,
+    @InjectRepository(Manager)
+    private managerRepository: Repository<Manager>,  
   ){} 
 
   create(createLocationDto: CreateLocationDto) {
@@ -29,17 +32,53 @@ export class LocationsService {
   }
 
   async update(id: number, updateLocationDto: UpdateLocationDto) {
-    const locationToUpdate = await this.locationRepository.preload({
+    await this.managerRepository
+      .createQueryBuilder()
+      .update()
+      .set({ location: () => 'NULL' })
+      .where("locationId = :id", { id })
+      .execute();
+
+    const location = await this.locationRepository.preload({
       locationId: id,
-      ...updateLocationDto
+      ...updateLocationDto,
     });
-    if (!locationToUpdate) throw new NotFoundException("Location not found");
-    return await this.locationRepository.save(locationToUpdate);
+
+    if (!location) throw new NotFoundException("Location not found");
+
+    const savedLocation = await this.locationRepository.save(location);
+
+    const managerId = (updateLocationDto as any).manager;
+    if (managerId) {
+      const updatedManager = await this.managerRepository.preload({
+        managerId: managerId,
+        location: savedLocation,
+      });
+      
+      if (updatedManager) {
+        await this.managerRepository.save(updatedManager);
+      }
+    }
+
+    return savedLocation;
   }
 
   async remove(id: number) {
-    const location = await this.findOne(id);
-    await this.locationRepository.delete({ locationId: id });
+    await this.managerRepository
+      .createQueryBuilder()
+      .update()
+      .set({ location: () => 'NULL' })
+      .where("locationId = :id", { id })
+      .execute();
+
+    const result = await this.locationRepository.delete({
+      locationId: id
+    });
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Location with id ${id} not found`);
+    }
+
     return {
       message: `Location with id ${id} deleted successfully`
     };
