@@ -1,6 +1,17 @@
-import { IsInt, IsNumber, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsInt, IsNumber, IsObject, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+
+export interface Provider {
+  id?: string;
+  name?: string;
+  [key: string]: any;
+}
 
 export class CreateProductDto {
+  @IsString()
+  @IsUUID("4")
+  @IsOptional()
+  productId: string;
+
   @IsString()
   @MaxLength(40)
   productName: string;
@@ -11,6 +22,6 @@ export class CreateProductDto {
   @IsInt()
   countSeal: number;
 
-  @IsUUID("4")
-  providerId: string; // ← Cambié a providerId (string UUID)
+  @IsObject()
+  provider: Provider | string;
 }

@@ -17,7 +17,7 @@ export class Product {
 
     @ManyToOne(() => Provider, (provider) => provider.products)
     @JoinColumn({
-        name: "ProviderId",
+        name: "providerId", 
     })
-    provider: Provider;
+    provider: Provider | string; 
 }
