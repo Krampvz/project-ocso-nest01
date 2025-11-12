@@ -18,13 +18,29 @@ export class EmployeesService {
   }
 
   async findAll() {
-    return this.employeeRepository.find();
+    return this.employeeRepository.find({
+      relations: {
+        location: true,
+      }
+    });
+  }
+
+  async findByLocation(id: number) {
+    return this.employeeRepository.findBy({
+      location: {
+        locationId: id
+      }
+    });
   }
 
   async findOne(id: string) {
     const employee = await this.employeeRepository.findOne({
-      where: { employeeId: id },
-      relations: ['location'] // ✅ Para incluir la relación
+      where: { 
+        employeeId: id 
+      },
+      relations: {
+        location: true,
+      }
     });
     
     if (!employee) {
@@ -48,13 +64,11 @@ export class EmployeesService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
-    await this.employeeRepository.delete({
-      employeeId: id
-    });
+    const employee = await this.findOne(id);
+    await this.employeeRepository.remove(employee);
     
     return {
-      message: "Employee has been DELETED"
+      message: "Employee deleted successfully"
     };
   }
 }

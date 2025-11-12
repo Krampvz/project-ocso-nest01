@@ -18,6 +18,7 @@ export class CreateEmployeeDto {
     employeePhoneNumber: string; 
 
     @ApiProperty()
+    @IsString()
     @IsEmail()
     employeeEmail: string; 
 
@@ -25,4 +26,9 @@ export class CreateEmployeeDto {
     @IsOptional()
     @IsNumber()
     locationId?: number;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    employeePhoto?: string;
 }

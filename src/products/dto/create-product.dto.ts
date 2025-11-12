@@ -1,27 +1,36 @@
-import { IsInt, IsNumber, IsObject, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsString, IsEmail, IsOptional, IsObject, IsUUID } from "class-validator";
 
-export interface Provider {
-  id?: string;
-  name?: string;
-  [key: string]: any;
-}
-
-export class CreateProductDto {
+export class CreateEmployeeDto {
+  @ApiProperty()
   @IsString()
-  @IsUUID("4")
+  employeeName: string;
+
+  @ApiProperty()
+  @IsString()
+  employeeLastName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsEmail()
+  employeeEmail: string;
+
+  @ApiProperty()
+  @IsString()
+  employeePhoneNumber: string;
+
+  @ApiPropertyOptional()
   @IsOptional()
-  productId: string;
+  @IsUUID("4")
+  employeeId?: string;
 
-  @IsString()
-  @MaxLength(40)
-  productName: string;
-
-  @IsNumber()
-  price: number;
-
-  @IsInt()
-  countSeal: number;
-
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsObject()
-  provider: Provider | string;
+  location?: any;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  employeePhoto?: string;
 }

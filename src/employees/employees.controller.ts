@@ -9,12 +9,16 @@ import { ApiAuth } from "src/auth/decorators/api.decorator";
 import { ApiResponse } from "@nestjs/swagger";
 import { Employee } from "./entities/employee.entity";
 import { ApiTags } from '@nestjs/swagger';
+import { AWSService } from 'src/aws/aws.service';
 
 @ApiAuth()
 @ApiTags("Employees")
-@Controller('employees')
+@Controller("employees")
 export class EmployeesController {
-  constructor(private readonly employeesService: EmployeesService) {}
+  constructor(
+    private readonly employeesService: EmployeesService,
+    private readonly awsService: AWSService,
+  ) {}
 
   @ApiAuth()
   @Auth(ROLES.MANAGER)
@@ -29,24 +33,31 @@ export class EmployeesController {
     } as Employee
   })
   @Post()
-  create(@Body() createEmployeeDto: CreateEmployeeDto) {
-    return this.employeesService.create(createEmployeeDto);
+  @UseInterceptors(FileInterceptor("employeePhoto"))
+  async create(
+    @Body() createEmployeeDto: CreateEmployeeDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      return this.employeesService.create(createEmployeeDto);
+    } else {
+      const photoUrl = await this.awsService.uploadFile(file);
+      createEmployeeDto.employeePhoto = photoUrl;
+      return this.employeesService.create(createEmployeeDto);
+    }
   }
 
   @Auth(ROLES.MANAGER, ROLES.EMPLOYEE)
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    dest: './src/employees/employees-photos' 
-  }))
-  uploadPhoto(@UploadedFile() file: Express.Multer.File) {
-    return {
-      message: 'Archivo subido correctamente',
-      filename: file.filename,
-      originalname: file.originalname,
-      size: file.size,
-      mimetype: file.mimetype,
-      path: file.path // ← Para ver dónde se guardó
-    };
+  @Post(":id/upload")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadPhoto(
+    @Param('id', new ParseUUIDPipe({version: '4'})) id: string, 
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    const response = await this.awsService.uploadFile(file);
+    return this.employeesService.update(id, {
+      employeePhoto: response
+    } as UpdateEmployeeDto);
   }
 
   @Auth(ROLES.MANAGER)
@@ -56,25 +67,38 @@ export class EmployeesController {
   }
 
   @Auth(ROLES.MANAGER)
-  @Get('/:id')
-  findOne(
-    @Param('id', new ParseUUIDPipe({version: '4'})) 
-    id: string) 
-  {
-    return this.employeesService.findOne(id);
+  @Get("/location/:id")
+  findAllLocation(@Param("id") id: string) {
+    return this.employeesService.findByLocation(+id);
   }
 
   @Auth(ROLES.MANAGER, ROLES.EMPLOYEE)
-  @Patch('/:id')
-  update(@Param('id', new ParseUUIDPipe({version: '4'})) id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) { 
+  @Get('/:id')
+  findOne(
+    @Param('id', new ParseUUIDPipe({version: '4'})) id: string
+  ) {
+    return this.employeesService.findOne(id);
+  }
+
+  @Auth(ROLES.EMPLOYEE)
+  @UseInterceptors(FileInterceptor("employeePhoto"))
+  @Patch("/:id")
+  async update(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() updateEmployeeDto: UpdateEmployeeDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (file && file.originalname !== "undefined") {
+      const fileUrl = await this.awsService.uploadFile(file);
+      updateEmployeeDto.employeePhoto = fileUrl;
+    }
     return this.employeesService.update(id, updateEmployeeDto);
   }
 
   @Auth(ROLES.MANAGER)
-  @Delete(':id')
+  @Delete("/:id")
   remove(
-    @Param('id', new ParseUUIDPipe({version: '4'})) 
-    id: string
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
   ) {
     return this.employeesService.remove(id);
   }
